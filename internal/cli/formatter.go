@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/yourusername/openrouter-cli/internal/api"
+	"github.com/kdevrou/openrouter-cli/internal/api"
 )
 
 // OutputFormat represents the desired output format
@@ -65,22 +65,25 @@ func FormatModelList(models []api.Model, format OutputFormat) error {
 	}
 
 	// Format as table for pretty/raw output
-	// Print header
-	fmt.Printf("%-35s | %-15s | %-30s | %-10s\n",
-		"Model ID", "Context Length", "Pricing (in/out)", "Modality")
-	fmt.Println(strings.Repeat("-", 95))
+	// Print header with wider columns
+	fmt.Printf("%-50s | %-15s | %-35s | %-15s\n",
+		"Model ID", "Context", "Pricing (prompt/completion)", "Modality")
+	fmt.Println(strings.Repeat("-", 120))
 
 	for _, model := range models {
-		// Shorten model ID for readability
+		// Use full model ID without truncation
 		modelID := model.ID
-		if len(modelID) > 33 {
-			modelID = modelID[:30] + "..."
+		if len(modelID) > 50 {
+			modelID = modelID[:47] + "..."
 		}
 
-		// Format pricing (remove leading zeros and format)
+		// Format context length with commas
+		contextStr := fmt.Sprintf("%d", model.ContextLength)
+
+		// Format pricing without truncation
 		pricing := formatPrice(model.Pricing.Prompt) + " / " + formatPrice(model.Pricing.Completion)
-		if len(pricing) > 28 {
-			pricing = pricing[:25] + "..."
+		if len(pricing) > 35 {
+			pricing = pricing[:32] + "..."
 		}
 
 		// Format modality
@@ -88,13 +91,10 @@ func FormatModelList(models []api.Model, format OutputFormat) error {
 		if modality == "" {
 			modality = "text"
 		}
-		if len(modality) > 8 {
-			modality = modality[:5] + "..."
-		}
 
-		fmt.Printf("%-35s | %-15d | %-30s | %-10s\n",
+		fmt.Printf("%-50s | %-15s | %-35s | %-15s\n",
 			modelID,
-			model.ContextLength,
+			contextStr,
 			pricing,
 			modality)
 	}

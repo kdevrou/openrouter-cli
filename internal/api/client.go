@@ -48,7 +48,7 @@ func (c *Client) SendChatCompletion(req *ChatCompletionRequest) (*ChatCompletion
 	// Set headers
 	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.APIKey))
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("HTTP-Referer", "https://github.com/yourusername/openrouter-cli")
+	httpReq.Header.Set("HTTP-Referer", "https://github.com/kdevrou/openrouter-cli")
 	httpReq.Header.Set("X-Title", "OpenRouter CLI")
 
 	// Send request
@@ -90,7 +90,7 @@ func (c *Client) ListModels() ([]Model, error) {
 
 	// Set headers
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.APIKey))
-	req.Header.Set("HTTP-Referer", "https://github.com/yourusername/openrouter-cli")
+	req.Header.Set("HTTP-Referer", "https://github.com/kdevrou/openrouter-cli")
 	req.Header.Set("X-Title", "OpenRouter CLI")
 
 	// Send request

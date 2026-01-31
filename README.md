@@ -16,7 +16,7 @@ A command-line interface for [OpenRouter.ai](https://openrouter.ai) - access 400
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/openrouter-cli.git
+git clone https://github.com/kdevrou/openrouter-cli.git
 cd openrouter-cli
 make install
 ```
@@ -368,6 +368,6 @@ Contributions welcome! Please open an issue or PR.
 
 ## Support
 
-- Issues: https://github.com/yourusername/openrouter-cli/issues
-- Discussions: https://github.com/yourusername/openrouter-cli/discussions
+- Issues: https://github.com/kdevrou/openrouter-cli/issues
+- Discussions: https://github.com/kdevrou/openrouter-cli/discussions
 - OpenRouter Docs: https://openrouter.ai/docs

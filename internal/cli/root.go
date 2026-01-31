@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/yourusername/openrouter-cli/internal/config"
+	"github.com/kdevrou/openrouter-cli/internal/config"
 )
 
 var (

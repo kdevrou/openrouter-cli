@@ -60,7 +60,7 @@ type Model struct {
 	Pricing        ModelPricing `json:"pricing"`
 	Architecture   Architecture `json:"architecture"`
 	Description    string       `json:"description,omitempty"`
-	TopProvider    string       `json:"top_provider,omitempty"`
+	TopProvider    interface{}  `json:"top_provider,omitempty"` // Can be string or object
 }
 
 // ModelsResponse is the response from the models list endpoint

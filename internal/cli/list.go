@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/yourusername/openrouter-cli/internal/api"
+	"github.com/kdevrou/openrouter-cli/internal/api"
 )
 
 var (

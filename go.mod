@@ -1,4 +1,4 @@
-module github.com/yourusername/openrouter-cli
+module github.com/kdevrou/openrouter-cli
 
 go 1.25.4
 
