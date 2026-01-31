@@ -1,0 +1,373 @@
+# OpenRouter CLI
+
+A command-line interface for [OpenRouter.ai](https://openrouter.ai) - access 400+ AI models directly from your terminal.
+
+## Features
+
+- **Chat completions**: Send prompts to any AI model on OpenRouter
+- **List models**: Browse available models with pricing and capabilities
+- **Flexible input**: Accept text as arguments or from stdin pipes
+- **Multiple output formats**: Pretty-printed, raw, or JSON output
+- **Easy configuration**: Store API key in config file or environment variable
+- **Scriptable**: Perfect for piping to other commands
+
+## Installation
+
+### From Source
+
+```bash
+git clone https://github.com/yourusername/openrouter-cli.git
+cd openrouter-cli
+make install
+```
+
+### Prerequisites
+
+- Go 1.20 or later
+- An OpenRouter API key (get one at https://openrouter.ai)
+
+### NixOS Development
+
+If you're on NixOS, a `flake.nix` is included for easy development setup:
+
+```bash
+# Enter the development environment
+nix flake update  # First time only
+nix develop
+
+# Now you can build and use the project
+make build
+```
+
+The flake automatically provides Go, GCC, and other build tools needed for compilation.
+
+## Quick Start
+
+### 1. Set up your API key
+
+Choose one of these options:
+
+**Option A: Environment variable**
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-..."
+```
+
+**Option B: Config file**
+Create `~/.config/openrouter/config.yaml`:
+```yaml
+api_key: "sk-or-v1-..."
+default_model: "openai/gpt-4"
+output_format: "pretty"
+```
+
+### 2. Send a message
+
+```bash
+# Basic usage
+openrouter chat "What is Go?"
+
+# With a specific model
+openrouter chat -m anthropic/claude-3.5-sonnet "Explain quantum computing"
+
+# With pipes
+echo "Summarize this text" | openrouter chat
+```
+
+### 3. List available models
+
+```bash
+# View all models
+openrouter list
+
+# Filter by name
+openrouter list --filter gpt
+
+# Get raw JSON
+openrouter list --json
+```
+
+## Usage
+
+### Chat Command
+
+Send a message to an AI model:
+
+```bash
+openrouter chat [prompt] [flags]
+```
+
+**Examples:**
+
+```bash
+# Basic message
+openrouter chat "Hello, world!"
+
+# With specific model
+openrouter chat -m "openai/gpt-4-turbo-preview" "Write a haiku about Go"
+
+# With temperature control (creativity)
+openrouter chat -t 1.5 "Generate a creative story"
+
+# With token limit
+openrouter chat --max-tokens 200 "Brief explanation of recursion"
+
+# Raw output for piping
+openrouter chat --raw "Generate a UUID" | cut -d' ' -f1
+
+# JSON output for scripting
+openrouter chat --json "Hello" | jq '.choices[0].message.content'
+```
+
+**Flags:**
+
+- `-m, --model <model>` - Model to use (default: from config)
+- `-t, --temperature <value>` - Temperature 0.0-2.0 (default: 1.0)
+- `--max-tokens <n>` - Maximum tokens in response (default: 4096)
+- `--raw` - Output only the response text (for piping)
+- `--json` - Output full API response as JSON
+
+**Input:**
+
+Text can be provided as:
+- Command argument: `openrouter chat "Your prompt here"`
+- Piped input: `echo "Your prompt" | openrouter chat`
+- Interactive (if neither provided, shows error with helpful message)
+
+### List Command
+
+Display available models:
+
+```bash
+openrouter list [flags]
+```
+
+**Examples:**
+
+```bash
+# Show all models
+openrouter list
+
+# Filter by search term
+openrouter list --filter "gpt-4"
+openrouter list --filter "claude"
+
+# Get JSON output
+openrouter list --json | jq '.[] | select(.context_length > 100000)'
+```
+
+**Flags:**
+
+- `--filter <term>` - Filter models by name or ID
+- `--json` - Output as JSON instead of table
+
+### Global Flags
+
+These flags work with all commands:
+
+- `--api-key <key>` - Override API key (for quick testing)
+- `--config <path>` - Use custom config file path
+- `--debug` - Show debug information
+- `-h, --help` - Show help
+- `-v, --version` - Show version
+
+## Configuration
+
+### Config File Format
+
+Default location: `~/.config/openrouter/config.yaml`
+
+Supports XDG Base Directory spec - set `$XDG_CONFIG_HOME` to use a different location.
+
+**Example config:**
+
+```yaml
+# Your OpenRouter API key
+api_key: "sk-or-v1-..."
+
+# Default model for chat (if not specified with -m)
+default_model: "openai/gpt-4"
+
+# Default temperature for chat requests
+default_temperature: 1.0
+
+# Default max tokens for responses
+default_max_tokens: 4096
+
+# Output format: pretty | raw | json
+output_format: "pretty"
+
+# API settings
+api_base_url: "https://openrouter.ai/api/v1"
+timeout: 60
+```
+
+### Environment Variables
+
+- `OPENROUTER_API_KEY` - Your API key (highest priority)
+- `XDG_CONFIG_HOME` - Custom config directory location
+
+## Examples
+
+### Simple Q&A
+
+```bash
+openrouter chat "What's the capital of France?"
+openrouter chat -m anthropic/claude-3-opus "Explain quantum entanglement"
+```
+
+### Piping and Integration
+
+```bash
+# Get help from Claude
+echo "How do I use grep with regex?" | openrouter chat --raw
+
+# Generate and use data
+openrouter chat --raw "Generate a random hex color code" | xargs -I {} echo "Color: {}"
+
+# Combine with other tools
+openrouter chat "List 5 JavaScript tips" --raw | grep -i "tip"
+
+# Save responses to files
+openrouter chat "Write a Python function to calculate fibonacci" > fibonacci.py
+```
+
+### Working with JSON
+
+```bash
+# Get specific fields from response
+openrouter chat --json "Hello" | jq '.usage.total_tokens'
+
+# Filter models
+openrouter list --json | jq '.[] | select(.context_length > 100000) | .id'
+
+# Extract model pricing
+openrouter list --json | jq '.[] | {id, pricing}'
+```
+
+### Batch Processing
+
+```bash
+# Process multiple prompts
+for prompt in "Hello" "Hi" "Hey"; do
+  openrouter chat --raw "$prompt"
+done
+
+# With different models
+openrouter chat -m "openai/gpt-4" "Technical question"
+openrouter chat -m "openai/gpt-3.5-turbo" "Creative writing"
+```
+
+## Building
+
+### Build the binary
+
+```bash
+make build
+# Binary will be at ./bin/openrouter
+```
+
+### Install globally
+
+```bash
+make install
+# Installs to $GOPATH/bin/openrouter
+```
+
+### Development build (with debug info)
+
+```bash
+go build -o bin/openrouter cmd/openrouter/main.go
+./bin/openrouter chat "Hello" --debug
+```
+
+### NixOS/Flake Development
+
+If you're developing on NixOS, use the provided Flake:
+
+```bash
+# Set up the development environment
+nix develop
+
+# Now you have all build tools available
+make build
+make install
+
+# Exit the environment
+exit
+```
+
+The flake provides Go, GCC, pkg-config, and other build tools automatically.
+
+## Troubleshooting
+
+### "No API key found"
+
+Make sure your API key is set:
+
+```bash
+# Check environment variable
+echo $OPENROUTER_API_KEY
+
+# Or create config file at ~/.config/openrouter/config.yaml
+cat ~/.config/openrouter/config.yaml
+```
+
+### "Model not found"
+
+Check available models:
+
+```bash
+openrouter list --filter "gpt"
+```
+
+Use the full model ID from the output.
+
+### Timeout errors
+
+Try increasing the timeout in your config:
+
+```yaml
+timeout: 120  # seconds
+```
+
+Or disable piping to ensure the connection stays open.
+
+### "No input provided"
+
+Either pass a prompt as an argument:
+
+```bash
+openrouter chat "Your prompt"
+```
+
+Or pipe input:
+
+```bash
+echo "Your prompt" | openrouter chat
+```
+
+## Future Enhancements
+
+Planned features for future releases:
+
+- Streaming responses for real-time output
+- Conversation history and multi-turn conversations
+- Image and video input support
+- Interactive prompt mode
+- Command completion for shells
+- Cost estimation before sending requests
+- Token counting utilities
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions welcome! Please open an issue or PR.
+
+## Support
+
+- Issues: https://github.com/yourusername/openrouter-cli/issues
+- Discussions: https://github.com/yourusername/openrouter-cli/discussions
+- OpenRouter Docs: https://openrouter.ai/docs

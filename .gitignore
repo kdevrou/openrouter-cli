@@ -1,0 +1,60 @@
+# Binaries for programs and plugins
+bin/
+openrouter
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Test binaries, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+*.cover
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Go build cache
+.cache/
+.go-build/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+*.iml
+.c9/
+*.sublime-workspace
+
+# Sensitive config files (never commit API keys!)
+.openrouter.yaml
+config.yaml
+.env
+.env.local
+.env.*.local
+
+# Local configuration
+config.local.yaml
+
+# Build artifacts and generated files
+dist/
+build/
+out/
+
+# OS files
+Thumbs.db
+.AppleDouble
+.LSOverride
