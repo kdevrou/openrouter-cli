@@ -22,7 +22,11 @@ const (
 // FormatChatResponse formats a chat completion response
 func FormatChatResponse(resp *api.ChatCompletionResponse, format OutputFormat) error {
 	if len(resp.Choices) == 0 {
-		return fmt.Errorf("no choices in response")
+		// Check if this looks like an error response
+		if resp.ID == "" && resp.Model == "" {
+			return fmt.Errorf("no response from API (this may be a rate limit or provider error)")
+		}
+		return fmt.Errorf("no choices in response - model may be unavailable or rate-limited")
 	}
 
 	choice := resp.Choices[0]
