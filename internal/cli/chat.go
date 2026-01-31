@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/kdevrou/openrouter-cli/internal/api"
 	"github.com/kdevrou/openrouter-cli/internal/util"
+	"github.com/spf13/cobra"
 )
 
 var (

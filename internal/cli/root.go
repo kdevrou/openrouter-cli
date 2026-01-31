@@ -3,8 +3,8 @@ package cli
 import (
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/kdevrou/openrouter-cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var (

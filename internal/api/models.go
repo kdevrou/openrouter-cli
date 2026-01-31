@@ -2,7 +2,7 @@ package api
 
 // Message represents a chat message
 type Message struct {
-	Role    string `json:"role"`    // "user", "assistant", "system"
+	Role    string `json:"role"` // "user", "assistant", "system"
 	Content string `json:"content"`
 }
 
@@ -53,14 +53,14 @@ type Architecture struct {
 
 // Model represents an available LLM model
 type Model struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Created        int64        `json:"created"`
-	ContextLength  int          `json:"context_length"`
-	Pricing        ModelPricing `json:"pricing"`
-	Architecture   Architecture `json:"architecture"`
-	Description    string       `json:"description,omitempty"`
-	TopProvider    interface{}  `json:"top_provider,omitempty"` // Can be string or object
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Created       int64        `json:"created"`
+	ContextLength int          `json:"context_length"`
+	Pricing       ModelPricing `json:"pricing"`
+	Architecture  Architecture `json:"architecture"`
+	Description   string       `json:"description,omitempty"`
+	TopProvider   interface{}  `json:"top_provider,omitempty"` // Can be string or object
 }
 
 // ModelsResponse is the response from the models list endpoint

@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/kdevrou/openrouter-cli/internal/api"
+	"github.com/spf13/cobra"
 )
 
 var (
