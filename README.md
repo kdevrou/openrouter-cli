@@ -39,26 +39,49 @@ nix develop
 make build
 ```
 
-The flake automatically provides Go, GCC, and other build tools needed for compilation.
+The flake provides Go and other build tools. The binary is statically compiled (no cgo), so it runs anywhere without external dependencies.
 
 ## Quick Start
 
 ### 1. Set up your API key
 
-Choose one of these options:
+Choose one of these options (listed in order of precedence):
 
-**Option A: Environment variable**
+**Option A: Command-line flag (testing only)**
 ```bash
-export OPENROUTER_API_KEY="sk-or-v1-..."
+openrouter chat --api-key "sk-or-v1-..." "Your prompt"
 ```
 
-**Option B: Config file**
-Create `~/.config/openrouter/config.yaml`:
+**Option B: Environment variable (recommended for temporary use)**
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-..."
+openrouter chat "Your prompt"
+```
+
+**Option C: Config file (recommended for regular use)**
+
+Create your config file (path varies by OS):
+- **Linux**: `~/.config/openrouter/config.yaml`
+- **macOS**: `~/Library/Application\ Support/openrouter/config.yaml` or `~/.config/openrouter/config.yaml`
+- **Windows**: `%APPDATA%\openrouter\config.yaml`
+
 ```yaml
 api_key: "sk-or-v1-..."
 default_model: "openai/gpt-4"
 output_format: "pretty"
 ```
+
+**Security Note**: Set restrictive permissions on your config file:
+```bash
+chmod 600 ~/.config/openrouter/config.yaml
+```
+This prevents other users on the system from reading your API key.
+
+**Config Precedence** (highest to lowest):
+1. `--api-key` command-line flag
+2. `OPENROUTER_API_KEY` environment variable
+3. Config file
+4. Defaults (if no API key configured, auth error)
 
 ### 2. Send a message
 
@@ -198,7 +221,7 @@ output_format: "pretty"
 
 # API settings
 api_base_url: "https://openrouter.ai/api/v1"
-timeout: 60
+timeout: 60  # seconds - request timeout for API calls
 ```
 
 ### Environment Variables
@@ -237,11 +260,17 @@ openrouter chat "Write a Python function to calculate fibonacci" > fibonacci.py
 # Get specific fields from response
 openrouter chat --json "Hello" | jq '.usage.total_tokens'
 
+# View full response with all details
+openrouter chat --json "Hello" | jq '.'
+
 # Filter models
 openrouter list --json | jq '.[] | select(.context_length > 100000) | .id'
 
 # Extract model pricing
 openrouter list --json | jq '.[] | {id, pricing}'
+
+# See token usage and model details
+openrouter chat --json "Your prompt" | jq '{model: .model, tokens: .usage.total_tokens}'
 ```
 
 ### Batch Processing
@@ -346,17 +375,43 @@ Or pipe input:
 echo "Your prompt" | openrouter chat
 ```
 
+### "Provider returned error (HTTP 429)"
+
+This means the model you're trying to use is rate-limited. This can happen if:
+
+- The provider (OpenAI, Anthropic, etc.) is rate-limiting requests
+- You've exceeded your account's rate limit
+- The free tier for that model is overloaded
+
+**Solutions:**
+- Try a different model: `openrouter list` to see alternatives
+- Wait a few minutes and try again
+- Upgrade your account for higher rate limits
+- Use a less popular model that has more availability
+
+### "Provider returned error (HTTP 402)"
+
+This means your OpenRouter account has a billing issue:
+
+- **No credits**: Add credits at https://openrouter.ai/account/billing/overview
+- **No payment method**: Add a valid credit card at https://openrouter.ai/account/billing/methods
+- **Spending limit reached**: Increase it in your account settings
+
 ## Future Enhancements
 
 Planned features for future releases:
 
-- Streaming responses for real-time output
-- Conversation history and multi-turn conversations
-- Image and video input support
-- Interactive prompt mode
-- Command completion for shells
-- Cost estimation before sending requests
-- Token counting utilities
+- **Streaming responses** for real-time output with Server-Sent Events
+- **Conversation history** with multi-turn conversations and session management
+- **Image and video input** support (base64 encoding)
+- **Interactive REPL mode** for multi-turn conversations without piping
+- **Model aliases** (e.g., `gpt-4` → `openai/gpt-4-turbo-preview`)
+- **Automatic retries** with exponential backoff for rate-limited requests (429 errors)
+- **Cost estimation** before sending requests
+- **Token counting** utilities to preview costs
+- **Secret service integration** for secure API key storage (macOS Keychain, Linux Secret Service)
+- **Shell command completion** generation for bash/zsh
+- **Configuration management** commands (`openrouter config set/get`)
 
 ## License
 
