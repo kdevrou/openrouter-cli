@@ -424,5 +424,4 @@ Contributions welcome! Please open an issue or PR.
 ## Support
 
 - Issues: https://github.com/kdevrou/openrouter-cli/issues
-- Discussions: https://github.com/kdevrou/openrouter-cli/discussions
 - OpenRouter Docs: https://openrouter.ai/docs
