@@ -139,6 +139,9 @@ openrouter chat --raw "Generate a UUID" | cut -d' ' -f1
 
 # JSON output for scripting
 openrouter chat --json "Hello" | jq '.choices[0].message.content'
+
+# Analyze a file
+cat code.go | openrouter chat --stdin "Review this code"
 ```
 
 **Flags:**
@@ -146,15 +149,15 @@ openrouter chat --json "Hello" | jq '.choices[0].message.content'
 - `-m, --model <model>` - Model to use (default: from config)
 - `-t, --temperature <value>` - Temperature 0.0-2.0 (default: 1.0)
 - `--max-tokens <n>` - Maximum tokens in response (default: 4096)
-- `--raw` - Output only the response text (for piping)
+- `--stdin` - Append piped input to prompt argument (for `cat file | openrouter chat --stdin "Prompt"`)
+- `--raw` - Output only the response text (perfect for piping to other commands)
 - `--json` - Output full API response as JSON
 
-**Input:**
+**Input methods:**
 
-Text can be provided as:
-- Command argument: `openrouter chat "Your prompt here"`
-- Piped input: `echo "Your prompt" | openrouter chat`
-- Interactive (if neither provided, shows error with helpful message)
+- **Argument only**: `openrouter chat "Your question"`
+- **Pipe only**: `echo "Your prompt" | openrouter chat`
+- **Combined** (using `--stdin`): `cat file.txt | openrouter chat --stdin "Question about:"` - combines both seamlessly
 
 ### List Command
 
@@ -240,6 +243,9 @@ openrouter chat -m anthropic/claude-3-opus "Explain quantum entanglement"
 
 ### Piping and Integration
 
+Piping is a core feature - use LLMs as natural UNIX tools in your workflows:
+
+**Output piping (send responses to other commands):**
 ```bash
 # Get help from Claude
 echo "How do I use grep with regex?" | openrouter chat --raw
@@ -252,6 +258,43 @@ openrouter chat "List 5 JavaScript tips" --raw | grep -i "tip"
 
 # Save responses to files
 openrouter chat "Write a Python function to calculate fibonacci" > fibonacci.py
+```
+
+**Input piping with `--stdin` (analyze files and data):**
+```bash
+# Analyze a code file
+cat main.go | openrouter chat --stdin "Review this code for bugs"
+
+# Get help understanding an error
+cat error.log | openrouter chat --stdin "What does this error mean?"
+
+# Analyze test output
+pytest --tb=short 2>&1 | openrouter chat --stdin "Why are these tests failing?"
+
+# Document your code
+cat function.py | openrouter chat --stdin "Write docstring for this function"
+
+# Refactor suggestion
+cat ugly.js | openrouter chat --stdin "Suggest a better implementation:"
+
+# SQL optimization
+cat query.sql | openrouter chat --stdin "Optimize this SQL query"
+
+# Debug configuration
+cat config.yaml | openrouter chat --stdin "Is this Kubernetes config correct?"
+```
+
+**Combining input and output piping (CLI chains):**
+```bash
+# Translate code and save result
+cat spanish.txt | openrouter chat --stdin "Translate to English" | tee english.txt
+
+# Generate and execute
+openrouter chat --raw "Write a bash script to list all users" | bash
+
+# Multiple LLM steps
+cat requirements.txt | openrouter chat --stdin "Generate Python code" | \
+  openrouter chat --stdin "Add error handling"
 ```
 
 ### Working with JSON
