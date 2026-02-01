@@ -20,12 +20,19 @@ var listCmd = &cobra.Command{
 	Short: "List available models with pricing and capabilities",
 	Long: `Display all available models on OpenRouter with pricing and capabilities.
 
+Models marked as unavailable (via 'openrouter config add-unavailable') are hidden by default.
+
 Use --filter to search for specific models:
   openrouter list --filter gpt
   openrouter list --filter claude
 
 Use --json to get raw JSON output for scripting:
-  openrouter list --json | jq '.[] | .id'`,
+  openrouter list --json | jq '.[] | .id'
+
+Manage unavailable models:
+  openrouter config add-unavailable qwen/model:free
+  openrouter config list-unavailable
+  openrouter config remove-unavailable qwen/model:free`,
 
 	RunE: runList,
 }
@@ -55,7 +62,7 @@ func runList(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Filter models if requested
+	// Filter models by name if requested
 	if filterName != "" {
 		filtered := make([]api.Model, 0)
 		filterLower := strings.ToLower(filterName)
@@ -68,10 +75,28 @@ func runList(cmd *cobra.Command, args []string) error {
 		models = filtered
 	}
 
+	// Filter out unavailable models from config
+	unavailableModels := make(map[string]bool)
+	if cfg != nil && len(cfg.UnavailableModels) > 0 {
+		for _, m := range cfg.UnavailableModels {
+			unavailableModels[m] = true
+		}
+	}
+
+	filtered := make([]api.Model, 0)
+	for _, m := range models {
+		if !unavailableModels[m.ID] {
+			filtered = append(filtered, m)
+		}
+	}
+	models = filtered
+
 	if len(models) == 0 {
 		PrintError("No models found")
 		if filterName != "" {
 			fmt.Fprintf(os.Stderr, "Try searching without filters or with different keywords\n")
+		} else if len(unavailableModels) > 0 {
+			fmt.Fprintf(os.Stderr, "All models are marked as unavailable. Use 'openrouter config list-unavailable' to see them.\n")
 		}
 		return nil
 	}

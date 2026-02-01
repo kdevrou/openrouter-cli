@@ -50,6 +50,7 @@ func init() {
 	// Register subcommands
 	RootCmd.AddCommand(chatCmd)
 	RootCmd.AddCommand(listCmd)
+	RootCmd.AddCommand(configCmd)
 }
 
 // GetConfig loads the configuration with command-line overrides

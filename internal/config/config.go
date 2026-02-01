@@ -15,13 +15,14 @@ var (
 
 // Config represents the application configuration
 type Config struct {
-	APIKey           string  `yaml:"api_key"`
-	DefaultModel     string  `yaml:"default_model"`
-	DefaultTemp      float64 `yaml:"default_temperature"`
-	DefaultMaxTokens int     `yaml:"default_max_tokens"`
-	OutputFormat     string  `yaml:"output_format"`
-	APIBaseURL       string  `yaml:"api_base_url"`
-	Timeout          int     `yaml:"timeout"`
+	APIKey            string   `yaml:"api_key"`
+	DefaultModel      string   `yaml:"default_model"`
+	DefaultTemp       float64  `yaml:"default_temperature"`
+	DefaultMaxTokens  int      `yaml:"default_max_tokens"`
+	OutputFormat      string   `yaml:"output_format"`
+	APIBaseURL        string   `yaml:"api_base_url"`
+	Timeout           int      `yaml:"timeout"`
+	UnavailableModels []string `yaml:"unavailable_models,omitempty"`
 }
 
 // DefaultConfig returns a Config with sensible defaults
@@ -133,4 +134,34 @@ func (partial *PartialConfig) Merge(cfg *Config) {
 	if partial.Timeout != nil {
 		cfg.Timeout = *partial.Timeout
 	}
+}
+
+// IsModelUnavailable checks if a model is in the unavailable list
+func (cfg *Config) IsModelUnavailable(modelID string) bool {
+	for _, m := range cfg.UnavailableModels {
+		if m == modelID {
+			return true
+		}
+	}
+	return false
+}
+
+// AddUnavailableModel adds a model to the unavailable list
+func (cfg *Config) AddUnavailableModel(modelID string) error {
+	if cfg.IsModelUnavailable(modelID) {
+		return fmt.Errorf("model %s is already marked as unavailable", modelID)
+	}
+	cfg.UnavailableModels = append(cfg.UnavailableModels, modelID)
+	return nil
+}
+
+// RemoveUnavailableModel removes a model from the unavailable list
+func (cfg *Config) RemoveUnavailableModel(modelID string) error {
+	for i, m := range cfg.UnavailableModels {
+		if m == modelID {
+			cfg.UnavailableModels = append(cfg.UnavailableModels[:i], cfg.UnavailableModels[i+1:]...)
+			return nil
+		}
+	}
+	return fmt.Errorf("model %s not found in unavailable list", modelID)
 }

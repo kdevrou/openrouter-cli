@@ -186,6 +186,32 @@ openrouter list --json | jq '.[] | select(.context_length > 100000)'
 - `--filter <term>` - Filter models by name or ID
 - `--json` - Output as JSON instead of table
 
+### Config Command
+
+Manage OpenRouter CLI settings and model blocklist:
+
+```bash
+openrouter config [subcommand]
+```
+
+**Subcommands:**
+
+- `show` - Display all configuration settings
+- `get <key>` - Get a specific setting value
+- `set <key> <value>` - Set a configuration value
+- `add-unavailable <model_id>` - Block a model from appearing in list
+- `remove-unavailable <model_id>` - Unblock a model
+- `list-unavailable` - Show all blocked models
+
+**Examples:**
+
+```bash
+openrouter config show                              # View all settings
+openrouter config set default_model openai/gpt-4   # Change default model
+openrouter config add-unavailable qwen/model:free   # Block a problematic model
+openrouter config list-unavailable                 # See blocked models
+```
+
 ### Global Flags
 
 These flags work with all commands:
@@ -225,7 +251,45 @@ output_format: "pretty"
 # API settings
 api_base_url: "https://openrouter.ai/api/v1"
 timeout: 60  # seconds - request timeout for API calls
+
+# Models you don't want to use (filtered from 'list' command)
+unavailable_models:
+  - qwen/qwen3-next-80b-a3b-instruct:free
+  - some-other/broken-model
 ```
+
+### Config Management Commands
+
+Use the `config` command to view and edit settings:
+
+**View configuration:**
+```bash
+openrouter config show                    # View all settings
+openrouter config get default_model       # View specific setting
+openrouter config list-unavailable        # List blocked models
+```
+
+**Update configuration:**
+```bash
+openrouter config set default_model anthropic/claude-3.5-sonnet
+openrouter config set default_temperature 0.7
+openrouter config set timeout 120
+```
+
+**Manage unavailable models** (models that don't work for your account):
+
+```bash
+# Mark a model as unavailable (won't appear in 'list' command)
+openrouter config add-unavailable qwen/qwen3-next-80b-a3b-instruct:free
+
+# See all blocked models
+openrouter config list-unavailable
+
+# Unblock a model
+openrouter config remove-unavailable qwen/qwen3-next-80b-a3b-instruct:free
+```
+
+This lets you maintain a personal blocklist of models that don't work with your account (rate-limited, billing issues, privacy settings, etc.). Blocked models are automatically filtered from `openrouter list`.
 
 ### Environment Variables
 
@@ -454,7 +518,6 @@ Planned features for future releases:
 - **Token counting** utilities to preview costs
 - **Secret service integration** for secure API key storage (macOS Keychain, Linux Secret Service)
 - **Shell command completion** generation for bash/zsh
-- **Configuration management** commands (`openrouter config set/get`)
 
 ## License
 
